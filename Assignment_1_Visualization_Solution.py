@@ -8,6 +8,7 @@ Created on Sat Feb 25 11:21:11 2023
 # import libraries
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 # load country data into dataframe
 df_countries = pd.read_csv("Countries_gdp.csv", sep=";")
@@ -98,7 +99,7 @@ df_world_income = df_world_pop[df_world_pop["income_group"] != "Other"]\
 print(df_world_income)
 
 # create new dataframe containing only last 6 years data
-df_world_income_5 = df_world_income[df_world_income["year"].isin([2015, 2016, 2017, 2018, 2019, 2020, 2021])]
+df_world_income_5 = df_world_income[df_world_income["year"].isin([2017, 2018, 2019, 2020, 2021])]
 
 #explore the dataframe
 print(df_world_income_5[["year","income_group","population(million)"]])
@@ -136,35 +137,45 @@ plot_line_chart()
 # create dataframes for plot bar graph
 df_high = df_world_income_5[df_world_income_5["income_group"]=="High"]
 df_low = df_world_income_5[df_world_income_5["income_group"]=="Low"]
+df_low_mid = df_world_income_5[df_world_income_5["income_group"]=="Lower middle"]
+df_upper_mid = df_world_income_5[df_world_income_5["income_group"]=="Upper middle"]
 
 # create a function for bar chart
-def plot_bar_graph(x,y):
+def plot_bar_graph(x):
     """ plot the bar graph using given parameters """
+
+    x_pos = np.arange(len(x))
+    tick_labels = ["2017", "2018", "2019", "2020", "2021"]
 
     plt.figure()
 
-    plt.bar(df_high["year"], df_high["population(million)"], color=["#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600"])
+    plt.bar(x_pos - 0.2, df_high["population(million)"], width=0.2, label='High')
+    plt.bar(x_pos , df_low["population(million)"], width=0.2, label='Low')
+    plt.bar(x_pos + 0.2, df_low_mid["population(million)"], width=0.2, label='Lower middle')
+    plt.bar(x_pos + 0.4, df_upper_mid["population(million)"], width=0.2, label='Upper middle')
 
-    plt.xlabel("Income group")
+    plt.xlabel("Year")
     plt.ylabel("Population (million)")
-    plt.xticks(rotation = 90)
+    plt.xticks(x_pos, tick_labels)
     plt.title("Total population by income group")
+    plt.legend()
 
     plt.savefig("bar_chart.png")
     plt.show()
 
 # call the function
-plot_bar_graph(df_world_income_5["income_group"], df_world_income_5["population(million)"])
+plot_bar_graph(df_upper_mid)
 
 # create a function for histogram
 def plot_histogram():
     plt.figure()
 
-    plt.hist(df_asia["gdp_variation"], bins=5, label = "Asia", density = (True), alpha = 0.7)
-    plt.hist(df_africa["gdp_variation"], bins=5, label = "Africa", density = (True), alpha = 0.7)
+    plt.hist(df_asia["gdp_variation"], bins=20, label = "Asia", density = (True), alpha = 0.7)
+    plt.hist(df_usa["gdp_variation"], bins=20, label = "Africa", density = (True), alpha = 0.7)
 
-    plt.xlabel("h")
+    plt.xlabel("GDP Variation")
     plt.show()
 
-#plot_histogram()
+plot_histogram()
 
+print(df_asia["gdp_variation"])
