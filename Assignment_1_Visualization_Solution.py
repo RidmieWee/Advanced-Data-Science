@@ -72,10 +72,10 @@ df_world_pop["income_group"] = df_world_pop["income_group"].replace(["Ingreso al
                                                                      "Países de ingreso mediano bajo",
                                                                      "Ingreso mediano alto",
                                                                      "No clasificado"],
-                                                                    ["High income",
-                                                                     "Low income",
-                                                                     "Lower middle income",
-                                                                     "Upper middle income",
+                                                                    ["High",
+                                                                     "Low",
+                                                                     "Lower middle",
+                                                                     "Upper middle",
                                                                      "Other"])
 
 # explore the changes
@@ -83,12 +83,11 @@ print(df_world_pop["income_group"].unique())
 
 # group the data using year and region
 df_region_gdp = df_world_pop\
-                .groupby(["region_name", "year"])[["population(million)", "total_gdp"]]\
+                .groupby(["region_name", "year"])[["gdp_variation", "total_gdp"]]\
                 .sum().reset_index()
 
 # explore the new dataframe
 print(df_region_gdp)
-
 
 # group the data using year and income group
 df_world_income = df_world_pop[df_world_pop["income_group"] != "Other"]\
@@ -98,24 +97,18 @@ df_world_income = df_world_pop[df_world_pop["income_group"] != "Other"]\
 # explore the new dataframe
 print(df_world_income)
 
+# create new dataframe containing only last 6 years data
+df_world_income_5 = df_world_income[df_world_income["year"].isin([2015, 2016, 2017, 2018, 2019, 2020, 2021])]
+
+#explore the dataframe
+print(df_world_income_5[["year","income_group","population(million)"]])
+
 # create dataframes for plot line graph
 df_asia = df_region_gdp[df_region_gdp["region_name"]=="Asia"]
 df_usa = df_region_gdp[df_region_gdp["region_name"]=="Americas"]
 df_africa = df_region_gdp[df_region_gdp["region_name"]=="Africa"]
 df_europe = df_region_gdp[df_region_gdp["region_name"]=="Europe"]
 df_oceania = df_region_gdp[df_region_gdp["region_name"]=="Oceania"]
-
-# create dataframes for plot line graph
-#df_high = df_world_income[df_world_income["income_group"]=="High income"]
-#df_low = df_world_income[df_world_income["income_group"]=="Low income"]
-#df_low_mid = df_world_income[df_world_income["income_group"]=="Lower middle income"]
-#df_upper_mid = df_world_income[df_world_income["income_group"]=="Upper middle income"]
-
-# explore the new dataframes
-#print(df_high)
-#print(df_low)
-#print(df_low_mid)
-#print(df_upper_mid)
 
 # create function for plot line chart
 def plot_line_chart():
@@ -131,14 +124,18 @@ def plot_line_chart():
 
     plt.xlabel("Year")
     plt.ylabel("Total GDP")
-    plt.title("Total GDP by Continents ")
+    plt.title("Total GDP by continents ")
     plt.legend()
 
-    plt.savefig("line_chart2.png")
+    plt.savefig("line_chart.png")
     plt.show()
 
 # call the plot_line_chart function
 plot_line_chart()
+
+# create dataframes for plot bar graph
+df_high = df_world_income_5[df_world_income_5["income_group"]=="High"]
+df_low = df_world_income_5[df_world_income_5["income_group"]=="Low"]
 
 # create a function for bar chart
 def plot_bar_graph(x,y):
@@ -146,9 +143,28 @@ def plot_bar_graph(x,y):
 
     plt.figure()
 
-    plt.bar(x, y, color=["#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600"])
+    plt.bar(df_high["year"], df_high["population(million)"], color=["#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600"])
 
+    plt.xlabel("Income group")
+    plt.ylabel("Population (million)")
+    plt.xticks(rotation = 90)
+    plt.title("Total population by income group")
+
+    plt.savefig("bar_chart.png")
     plt.show()
 
 # call the function
-plot_bar_graph(df_world_income["income_group"], df_world_income["year"])
+plot_bar_graph(df_world_income_5["income_group"], df_world_income_5["population(million)"])
+
+# create a function for histogram
+def plot_histogram():
+    plt.figure()
+
+    plt.hist(df_asia["gdp_variation"], bins=5, label = "Asia", density = (True), alpha = 0.7)
+    plt.hist(df_africa["gdp_variation"], bins=5, label = "Africa", density = (True), alpha = 0.7)
+
+    plt.xlabel("h")
+    plt.show()
+
+#plot_histogram()
+
