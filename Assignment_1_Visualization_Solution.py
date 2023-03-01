@@ -183,5 +183,3 @@ def plot_histogram():
     return
 
 plot_histogram()
-
-print(df_asia["gdp_variation"])
