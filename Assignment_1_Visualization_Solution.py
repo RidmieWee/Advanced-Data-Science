@@ -131,6 +131,8 @@ def plot_line_chart():
     plt.savefig("line_chart.png")
     plt.show()
 
+    return
+
 # call the plot_line_chart function
 plot_line_chart()
 
@@ -163,6 +165,8 @@ def plot_bar_graph(x):
     plt.savefig("bar_chart.png")
     plt.show()
 
+    return
+
 # call the function
 plot_bar_graph(df_upper_mid)
 
@@ -175,6 +179,8 @@ def plot_histogram():
 
     plt.xlabel("GDP Variation")
     plt.show()
+
+    return
 
 plot_histogram()
 
