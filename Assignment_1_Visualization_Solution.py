@@ -116,118 +116,132 @@ df_world_income = df_world_pop[df_world_pop["income_group"] != "Other"]\
 # explore the new dataframe
 print(df_world_income)
 
-# group the data by only region
-df_region_pop_growth = df_world_pop[df_world_pop["income_group"] != "Other"]\
-                .groupby(["region_name"])[["growth_populaion(%)"]]\
-                .sum().reset_index()
-
 # create new dataframe containing only last 5 years data
 df_world_income_5 = df_world_income[df_world_income["year"].isin([2017, 2018, 2019, 2020, 2021])]
 
 # explore the dataframe
 print(df_world_income_5[["year","income_group","population(million)"]])
 
-# create dataframes for plot line graph
-df_asia = df_region_gdp[df_region_gdp["region_name"]=="Asia"]
-df_usa = df_region_gdp[df_region_gdp["region_name"]=="Americas"]
-df_africa = df_region_gdp[df_region_gdp["region_name"]=="Africa"]
-df_europe = df_region_gdp[df_region_gdp["region_name"]=="Europe"]
-df_oceania = df_region_gdp[df_region_gdp["region_name"]=="Oceania"]
-
-
 # create function for plot line chart
-def plot_line_chart():
-    """ plot the line graph using above created data frames """
+def plot_line_chart(df):
+    """ This ia a function to create a lineplot with multiple lines. This function takes datafrme as an     argument, and use year as x axis and the total gdp as y axis and plot lines for each reagion"""
 
+    # create dataframes for plot line graph
+    df_asia = df[df["region_name"]=="Asia"]
+    df_usa = df[df["region_name"]=="Americas"]
+    df_africa = df[df["region_name"]=="Africa"]
+    df_europe = df[df["region_name"]=="Europe"]
+    df_oceania = df[df["region_name"]=="Oceania"]
+
+    # make the figure
     plt.figure()
 
+    # use multiple x and y for plot multiple graphs
     plt.plot(df_asia["year"], df_asia["total_gdp"], label = "Asia")
     plt.plot(df_usa["year"], df_usa["total_gdp"], label = "USA")
     plt.plot(df_africa["year"], df_africa["total_gdp"], label = "Africa")
     plt.plot(df_europe["year"], df_europe["total_gdp"], label = "Europe")
     plt.plot(df_oceania["year"], df_oceania["total_gdp"], label = "Oceania")
 
+    # labeling
     plt.xlabel("Year")
     plt.ylabel("Total GDP")
+
+    # add a title and legend
     plt.title("Total GDP by region ")
     plt.legend()
 
+    # save the plot as png
     plt.savefig("line_chart.png")
+
+    # show the plot
     plt.show()
 
     return
 
-# call the plot_line_chart function
-plot_line_chart()
-
-# create dataframes for plot bar graph
-df_high = df_world_income_5[df_world_income_5["income_group"]=="High"]
-df_low = df_world_income_5[df_world_income_5["income_group"]=="Low"]
-df_low_mid = df_world_income_5[df_world_income_5["income_group"]=="Lower middle"]
-df_upper_mid = df_world_income_5[df_world_income_5["income_group"]=="Upper middle"]
-
 # create a function for bar chart
-def plot_bar_graph(x):
-    """ plot the bar graph using given parameters """
+def plot_bar_graph(df):
+    """ This ia a function to create a grouped bar chart. This function takes datafrme as an     argument, and plot multiple bars grouped by year. """
 
-    x_pos = np.arange(len(x))
-    tick_labels = ["2017", "2018", "2019", "2020", "2021"]
+    # create dataframes for plot bar graph
+    df_high = df[df["income_group"]=="High"]
+    df_low = df[df["income_group"]=="Low"]
+    df_low_mid = df[df["income_group"]=="Lower middle"]
+    df_upper_mid = df[df["income_group"]=="Upper middle"]
 
+    # make the figure
     plt.figure()
 
+    # create the position of bars
+    x_pos = np.arange(len(df_upper_mid))
+
+    # create x labels
+    tick_labels = ["2017", "2018", "2019", "2020", "2021"]
+
+    # plot the bars
     plt.bar(x_pos - 0.2, df_high["population(million)"], width=0.2, label='High')
     plt.bar(x_pos , df_low["population(million)"], width=0.2, label='Low')
     plt.bar(x_pos + 0.2, df_low_mid["population(million)"], width=0.2, label='Lower middle')
     plt.bar(x_pos + 0.4, df_upper_mid["population(million)"], width=0.2, label='Upper middle')
 
+    # labeling
     plt.xlabel("Year")
     plt.ylabel("Population (million)")
     plt.xticks(x_pos, tick_labels)
-    plt.title("Total population by income group")
-    plt.legend()
 
+    # add the title and legends
+    plt.title("Total population by income group")
+    plt.legend(loc='center left',  bbox_to_anchor=(1, 0.5),
+          fancybox=True, shadow=True)
+
+    # save the figure as png
     plt.savefig("bar_chart.png")
+
+    # show the plot
     plt.show()
 
     return
 
-# call the function
-plot_bar_graph(df_upper_mid)
+# create a fucntion for boxplots
+def plot_boxplot(df):
+    """ This ia a function to create boxplot. This function takes datafrme as an argument, and plot multiple boxplots for each region. """
 
-# create a function for histogram
-def plot_histogram():
+    # select useful columns for plot boxplot
+    df_pop_growth = df[["region_name","growth_populaion(%)"]].reset_index(drop=True)
+
+    # create pivot table using selected columns
+    df_pop_growth_pivot = df_pop_growth.pivot(columns="region_name",
+                                                      values="growth_populaion(%)")
+
+    # make the figure
     plt.figure()
 
-    plt.hist(df_asia["gdp_variation"], bins=20, label = "Asia", density = (True), alpha = 0.7)
-    plt.hist(df_usa["gdp_variation"], bins=20, label = "Africa", density = (True), alpha = 0.7)
+    # plot the boxplots without outliers
+    df_pop_growth_pivot.plot(kind='box', showfliers= 0)
 
-    plt.xlabel("GDP Variation")
+    # labeling and add title
+    plt.xlabel("Region")
+    plt.ylabel("Population growth rate")
+    plt.title("Distribution of population growth rate by region")
+
+    # save the plot as png
+    plt.savefig("bxplot.png")
+
+    # show the plot
     plt.show()
+
+    # get the Q1 and Q3 for futher analysis
+    lk = df_pop_growth.groupby('region_name').agg([('Upper', lambda x: x.quantile(.75)),
+                            ('Lower',lambda x: x.quantile(.25))])
+    lk.columns = [f"{b}_{a}" for a,b in lk.columns]
+
+    # print the result
+    print(lk)
 
     return
 
-plot_histogram()
+# call the funtions for plot graphs
+plot_line_chart(df_region_gdp)
+plot_bar_graph(df_world_income_5)
+plot_boxplot(df_world_pop)
 
-
-
-
-
-
-
-
-def plot_boxplot():
-
-    rt = df_world_pop[["region_name","growth_populaion(%)"]].reset_index(drop=True)
-
-
-    # transform the populations table seperate years columns into one year column
-    ff = rt.pivot(columns="region_name", values="growth_populaion(%)")
-    # Filter data using np.isnan
-    ff.plot(kind='box', showfliers= 0)
-
-
-
-    lk = rt.groupby('region_name').agg([('Upper', lambda x: x.quantile(.75)),
-                            ('Lower',lambda x: x.quantile(.25))])
-    lk.columns = [f"{b}_{a}" for a,b in lk.columns]
-    print(lk)
