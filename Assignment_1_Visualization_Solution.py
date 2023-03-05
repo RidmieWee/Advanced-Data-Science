@@ -62,6 +62,7 @@ def plot_line_chart(df):
     # show the plot
     plt.show()
 
+    # end the function
     return
 
 
@@ -126,6 +127,7 @@ def plot_bar_graph(df):
     # show the plot
     plt.show()
 
+    # end the function
     return
 
 
@@ -176,6 +178,7 @@ def plot_boxplot(df):
     # print the result
     print(lk)
 
+    # end the function
     return
 
 
