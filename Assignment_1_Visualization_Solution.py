@@ -37,6 +37,9 @@ df_population_new = pd.melt(df_population,
 # explore the new dataframe
 print(df_population_new.head())
 
+# remove nan row in population column
+df_population_new = df_population_new.dropna(subset=['Population'])
+
 # create two simmilar columns to merge population and countries data
 df_population_new["new"] = df_population_new["Country Code"] + "-" + df_population_new["Year"]
 df_countries["new"] = df_countries["country_code"].astype(str) + "-" + df_countries["year"].astype(str)
@@ -62,6 +65,11 @@ df_world_pop = df_world_pop[["country_name",
 
 # add new column
 df_world_pop["population(million)"] = df_world_pop["Population"]/1000000
+
+# convert object types into string
+df_world_pop[["country_name", "country_code", "region_name", "income_group"]] = df_world_pop[["country_name", "country_code", "region_name", "income_group"]].astype(pd.StringDtype())
+
+# explore the chaanges
 print(df_world_pop.info())
 
 # explore the unique income groups
@@ -82,6 +90,16 @@ df_world_pop["income_group"] = df_world_pop["income_group"].replace(["Ingreso al
 # explore the changes
 print(df_world_pop["income_group"].unique())
 
+# create a column to calculate population growth rate
+df_world_pop["growth_populaion(%)"] = df_world_pop.groupby(['country_name'],
+                                                              group_keys=False)['Population'].pct_change()*100
+
+# remove nan row in population growth column
+df_world_pop = df_world_pop.dropna(subset=['growth_populaion(%)'])
+
+# explore the new column
+print(df_world_pop.info())
+
 # group the data using year and region
 df_region_gdp = df_world_pop\
                 .groupby(["region_name", "year"])[["gdp_variation", "total_gdp"]]\
@@ -98,10 +116,15 @@ df_world_income = df_world_pop[df_world_pop["income_group"] != "Other"]\
 # explore the new dataframe
 print(df_world_income)
 
-# create new dataframe containing only last 6 years data
+# group the data by only region
+df_region_pop_growth = df_world_pop[df_world_pop["income_group"] != "Other"]\
+                .groupby(["region_name"])[["growth_populaion(%)"]]\
+                .sum().reset_index()
+
+# create new dataframe containing only last 5 years data
 df_world_income_5 = df_world_income[df_world_income["year"].isin([2017, 2018, 2019, 2020, 2021])]
 
-#explore the dataframe
+# explore the dataframe
 print(df_world_income_5[["year","income_group","population(million)"]])
 
 # create dataframes for plot line graph
@@ -110,6 +133,7 @@ df_usa = df_region_gdp[df_region_gdp["region_name"]=="Americas"]
 df_africa = df_region_gdp[df_region_gdp["region_name"]=="Africa"]
 df_europe = df_region_gdp[df_region_gdp["region_name"]=="Europe"]
 df_oceania = df_region_gdp[df_region_gdp["region_name"]=="Oceania"]
+
 
 # create function for plot line chart
 def plot_line_chart():
@@ -125,7 +149,7 @@ def plot_line_chart():
 
     plt.xlabel("Year")
     plt.ylabel("Total GDP")
-    plt.title("Total GDP by continents ")
+    plt.title("Total GDP by region ")
     plt.legend()
 
     plt.savefig("line_chart.png")
@@ -183,3 +207,27 @@ def plot_histogram():
     return
 
 plot_histogram()
+
+
+
+
+
+
+
+
+def plot_boxplot():
+
+    rt = df_world_pop[["region_name","growth_populaion(%)"]].reset_index(drop=True)
+
+
+    # transform the populations table seperate years columns into one year column
+    ff = rt.pivot(columns="region_name", values="growth_populaion(%)")
+    # Filter data using np.isnan
+    ff.plot(kind='box', showfliers= 0)
+
+
+
+    lk = rt.groupby('region_name').agg([('Upper', lambda x: x.quantile(.75)),
+                            ('Lower',lambda x: x.quantile(.25))])
+    lk.columns = [f"{b}_{a}" for a,b in lk.columns]
+    print(lk)
