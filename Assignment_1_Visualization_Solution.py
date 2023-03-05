@@ -49,11 +49,11 @@ def plot_line_chart(df):
     plt.plot(df_oceania["year"], df_oceania["total_gdp"], label="Oceania")
 
     # labeling
-    plt.xlabel("Year")
-    plt.ylabel("Total GDP")
+    plt.xlabel("Year", labelpad=(10), fontweight="bold")
+    plt.ylabel("Total GDP", labelpad=(10), fontweight="bold")
 
     # add a title and legend
-    plt.title("Total GDP by region ")
+    plt.title("Total GDP by region ", fontweight="bold", y=1.1)
     plt.legend()
 
     # save the plot as png
@@ -81,36 +81,40 @@ def plot_bar_graph(df):
     plt.figure()
 
     # create the position of bars
-    x_pos = np.arange(len(df_upper_mid))
+    x_pos = np.arange(len(df_low_mid))
 
     # create x labels
-    tick_labels = ["2017", "2018", "2019", "2020", "2021"]
+    tick_labels = ["1972", "1984", "1996", "2008", "2020"]
 
     # plot the bars
     plt.bar(x_pos - 0.2,
             df_high["population(million)"],
             width=0.2,
-            label='High')
+            label="High",
+            color="#fb8072")
     plt.bar(x_pos,
             df_low["population(million)"],
             width=0.2,
-            label='Low')
+            label="Low",
+            color="#98d857")
     plt.bar(x_pos + 0.2,
             df_low_mid["population(million)"],
             width=0.2,
-            label='Lower middle')
+            label="Lower middle",
+            color="#487697")
     plt.bar(x_pos + 0.4,
             df_upper_mid["population(million)"],
             width=0.2,
-            label='Upper middle')
+            label="Upper middle",
+            color="#fbe73e")
 
     # labeling
-    plt.xlabel("Year")
-    plt.ylabel("Population (million)")
+    plt.xlabel("Year", labelpad=(10), fontweight="bold")
+    plt.ylabel("Population (million)", labelpad=(10), fontweight="bold")
     plt.xticks(x_pos, tick_labels)
 
     # add the title and legends
-    plt.title("Total population by income group")
+    plt.title("Total population by income group", fontweight="bold", y=1.1)
     plt.legend(loc='center left',
                bbox_to_anchor=(1, 0.5),
                fancybox=True,
@@ -128,7 +132,7 @@ def plot_bar_graph(df):
 # create a fucntion for boxplots
 def plot_boxplot(df):
     """ This ia a function to create boxplot. This function takes datafrme
-    as an argument, and plot multiple boxplots for each region. """
+    as an argument, and plot boxplot for each region. """
 
     # select useful columns for plot boxplot
     df_pop_growth = df[["region_name",
@@ -142,15 +146,24 @@ def plot_boxplot(df):
     plt.figure()
 
     # plot the boxplots without outliers
-    df_pop_growth_pivot.plot(kind='box', showfliers=0)
+    df_pop_growth_pivot.plot(kind='box',
+                             showfliers=0,
+                             patch_artist=True,
+                             boxprops=dict(facecolor="lightblue",
+                                           color="black"),
+                             capprops=dict(color="black"),
+                             whiskerprops=dict(color="black"),
+                             medianprops=dict(color="red"))
 
     # labeling and add title
-    plt.xlabel("Region")
-    plt.ylabel("Population growth rate")
-    plt.title("Distribution of population growth rate by region")
+    plt.xlabel("Region", labelpad=(15), fontweight="bold")
+    plt.ylabel("Population growth rate", labelpad=(15), fontweight="bold")
+    plt.title("Distribution of population growth rate by region",
+              fontweight="bold",
+              y=1.1)
 
     # save the plot as png
-    plt.savefig("bxplot.png")
+    plt.savefig("boxplot.png")
 
     # show the plot
     plt.show()
@@ -259,7 +272,7 @@ print(df_world_income)
 
 # create new dataframe containing only last 5 years data
 df_world_income_5 = df_world_income[df_world_income["year"].isin(
-    [2017, 2018, 2019, 2020, 2021])]
+    [1972, 1984, 1996, 2008, 2020])]
 
 # explore the dataframe
 print(df_world_income_5[["year", "income_group", "population(million)"]])
